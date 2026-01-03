@@ -22,7 +22,7 @@ import {app} from "./app.js"
 //     }
 // })
 
-import connectDB from "./db/index.js"
+import {connectDB} from "./db/index.js"
 connectDB()
 .then(()=>{
     app.listen(process.env.PORT || 3000,()=>{
