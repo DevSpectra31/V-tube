@@ -30,6 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
     if([fullname,username,email,password].some((field)=>field?.trim() === "")){
         throw new ApiError(400,"All fields are required")
     }
+
    // check user is existed before
      const existeduser= await User.findOne({
          $or : [{username},{email }]
@@ -39,26 +40,26 @@ const registerUser = asyncHandler(async (req, res) => {
          throw new ApiError(405,"User with email or username exist")
      }
     // check avatar file is missing or not
-    const avatarLocalPath=  req.files?.avatar?.[0]?.path;
-    const coverImageLocalPath=  req.files?.coverImage?.[0]?.path;
+     const avatarLocalPath= req.files?.avatar?.[0]?.path;
+     const coverImageLocalPath=  req.files?.coverImage?.[0]?.path;
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar file is required")
     }
-    // upload to cloduinary
-      const avatarupload= await uploadOnCloudinary(avatarLocalPath,"temp/avatars")
-      const coverupload= await uploadOnCloudinary(coverImageLocalPath,"temp/coverImages")
+    // // upload to cloduinary
+      const avatarupload= await uploadOnCloudinary(avatar,"temp/avatars")
+      const coverupload= await uploadOnCloudinary(coverImage,"temp/coverImages")
       console.log("avatar file path : ",avatarupload)
-    //     if(!avatarupload?.secure_url){
-    //    throw new ApiError(400,"not able to upload on cloudinary ")
-    //     }
+      if(!avatarupload?.secure_url){
+         throw new ApiError(400,"not able to upload on cloudinary ")
+      }
     //create user object - create entry in object
      const user=await User.create({
         username:username.toLowerCase(),
         email,
         fullname,
         password,
-        avatar: avatarLocalPath,
-        coverImage:coverImageLocalPath || ""
+        avatar: avatar,
+        coverImage:coverImage || ""
     })
     // remove password and refresh token field from response 
     const createduser= await User.findById(user._id).select("-password")

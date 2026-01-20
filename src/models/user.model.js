@@ -32,13 +32,13 @@ const userSchema=new Schema(
         coverImage:{
             type:String,
         },
-        watchHistor:{
+        watchHistory:{
             type:Schema.Types.ObjectId,
             ref:"Video",
         },
         password:{
             type:String,
-            required:true['Password is required']
+            required:[true,'Password is required']
         },
         refreshToken:{
             type:String,
@@ -55,7 +55,7 @@ userSchema.methods.isPasswordCorrect=async function(password){
     return await bcrypt.compare(password,this.password)
 }
 userSchema.methods.generateAccessToken=function(){
-    jwt.sign(
+    return jwt.sign(
         {
             _id:this._id,
             email:this.email,
@@ -63,11 +63,11 @@ userSchema.methods.generateAccessToken=function(){
             fullname:this.fullname,
         },
         process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn:ACCESS_TOKEN_EXPIRY}
+        {expiresIn: process.env.ACCESS_TOKEN_EXPIRY || '1d'}
     )
 }
 userSchema.methods.generateRefreshToken=function(){
-    jwt.sign(
+    return jwt.sign(
         {
             _id:this._id,
             email:this.email,
@@ -75,7 +75,7 @@ userSchema.methods.generateRefreshToken=function(){
             fullname:this.fullname,
         },
         process.env.REFRESH_TOKEN_SECRET,
-        {expiresIn:REFRESH_TOKEN_EXPIRY}
+        {expiresIn: process.env.REFRESH_TOKEN_EXPIRY || '7d'}
     )
 }
 export const User=mongoose.model("User",userSchema)
